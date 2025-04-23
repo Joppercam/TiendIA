@@ -12,6 +12,10 @@ class DatabaseSeeder extends Seeder
     {
         $this->call([
             RolesAndPermissionsSeeder::class,
+            CategorySeeder::class,
+            BrandSeeder::class,
+            AttributeSeeder::class,
+            ProductSeeder::class,
         ]);
         
         // Crear un usuario super-admin
