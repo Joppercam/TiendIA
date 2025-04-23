@@ -1,61 +1,261 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# TiendIA - Plataforma E-commerce
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Plataforma completa de comercio electrónico desarrollada con Laravel, que incluye gestión de productos, carrito de compras, procesamiento de pagos, panel de administración y muchas otras funcionalidades avanzadas.
 
-## About Laravel
+## 📋 Descripción del Proyecto
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+TiendIA es una solución integral para comercio electrónico desarrollada con Laravel 10.x que implementa un completo sistema de tienda en línea con funcionalidades avanzadas como gestión de productos, catálogo dinámico, carrito de compras, procesamiento de pagos, panel de administración, gestión de usuarios y clientes, y mucho más.
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## 🚀 Características Principales
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+- **Sistema completo de autenticación** con roles y permisos
+- **Catálogo de productos** con categorías, marcas, atributos y variantes
+- **Gestión de inventario** con control de stock y alertas
+- **Carrito de compras** con persistencia y lista de deseos
+- **Proceso de checkout** intuitivo y seguro
+- **Múltiples opciones de pago** integradas
+- **Gestión de pedidos** con seguimiento en tiempo real
+- **Panel de administración** completo y personalizable
+- **Sistema de valoraciones y reseñas** de productos
+- **Marketing y promociones** con cupones y descuentos
+- **API RESTful** para integraciones y aplicaciones móviles
+- **Optimización SEO** integrada
+- **Multilenguaje y multimoneda**
+- **Notificaciones** por email, push y SMS
 
-## Learning Laravel
+## 🔧 Requisitos Técnicos
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+- PHP 8.1 o superior
+- Composer 2.0+
+- Node.js 16+ y NPM
+- MySQL 5.7 o superior (o MariaDB 10.2+)
+- Servidor web (Apache/Nginx)
+- Extensiones PHP: BCMath, Ctype, Fileinfo, JSON, Mbstring, OpenSSL, PDO, Tokenizer, XML, GD
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+## 💻 Instalación
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+### Paso 1: Clonar el repositorio
 
-## Laravel Sponsors
+```bash
+git clone https://github.com/tu-usuario/tiend-ia.git
+cd tiend-ia
+```
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+### Paso 2: Instalar dependencias PHP
 
-### Premium Partners
+```bash
+composer install
+```
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development/)**
-- **[Active Logic](https://activelogic.com)**
+### Paso 3: Instalar dependencias JavaScript
 
-## Contributing
+```bash
+npm install
+```
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+### Paso 4: Configurar entorno
 
-## Code of Conduct
+```bash
+# Copiar archivo de entorno
+cp .env.example .env
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+# Generar clave de aplicación
+php artisan key:generate
+```
 
-## Security Vulnerabilities
+Editar el archivo `.env` con la configuración de tu base de datos y otras variables de entorno.
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+### Paso 5: Ejecutar migraciones y seeders
 
-## License
+```bash
+# Crear tablas en la base de datos
+php artisan migrate
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+# Cargar datos iniciales (opcional)
+php artisan db:seed
+```
+
+### Paso 6: Compilar assets
+
+```bash
+# Para desarrollo
+npm run dev
+
+# Para producción
+npm run build
+```
+
+### Paso 7: Configurar permisos de almacenamiento
+
+```bash
+chmod -R 775 storage bootstrap/cache
+chown -R $USER:www-data storage bootstrap/cache
+```
+
+### Paso 8: Crear enlace simbólico para almacenamiento
+
+```bash
+php artisan storage:link
+```
+
+### Paso 9: Iniciar servidor de desarrollo
+
+```bash
+php artisan serve
+```
+
+El proyecto estará disponible en http://localhost:8000
+
+## 🏗️ Estructura del Proyecto
+
+### 1. Autenticación y Usuarios
+- **Modelos:** User, Role, Permission, Profile
+- **Controladores:** AuthController, UserController, ProfileController
+- **Implementación:** Laravel Breeze/Jetstream
+- **Funcionalidades:** Registro, login, gestión de perfiles, roles y permisos
+
+### 2. Catálogo de Productos
+- **Modelos:** Product, Category, Brand, Attribute, AttributeValue, ProductImage
+- **Controladores:** ProductController, CategoryController, BrandController
+- **Servicios:** ProductService, SearchService
+- **Funcionalidades:** Listado de productos, detalles, búsqueda avanzada, filtros
+
+### 3. Inventario
+- **Modelos:** Inventory, InventoryMovement, Supplier
+- **Controladores:** InventoryController, SupplierController
+- **Servicios:** InventoryService
+- **Funcionalidades:** Control de stock, alertas, gestión de proveedores
+
+### 4. Carrito de Compras
+- **Modelos:** Cart, CartItem, WishList
+- **Controladores:** CartController, WishListController
+- **Middleware:** CartMiddleware
+- **Servicios:** CartService
+- **Funcionalidades:** Gestión de carrito, lista de deseos, persistencia
+
+### 5. Proceso de Checkout
+- **Modelos:** Order, OrderItem, Address, PaymentMethod
+- **Controladores:** CheckoutController, AddressController
+- **Middleware:** CheckoutMiddleware
+- **Servicios:** CheckoutService, PaymentService
+- **Funcionalidades:** Selección de dirección, métodos de pago, confirmación
+
+### 6. Gestión de Pedidos
+- **Modelos:** Order, OrderStatus, Shipment, DeliveryMethod
+- **Controladores:** OrderController, ShipmentController
+- **Eventos:** OrderPlaced, OrderStatusChanged, OrderCancelled
+- **Notifications:** OrderConfirmation, ShipmentUpdate, DeliveryConfirmation
+- **Funcionalidades:** Seguimiento de pedidos, gestión de estados, logística
+
+### 7. Valoraciones y Reseñas
+- **Modelos:** Review, Rating, Question, Answer
+- **Controladores:** ReviewController, QuestionController
+- **Políticas:** ReviewPolicy
+- **Funcionalidades:** Comentarios, puntuaciones, preguntas y respuestas
+
+### 8. Panel de Administración
+- **Controladores:** AdminController, DashboardController, ReportController
+- **Middleware:** AdminMiddleware
+- **Servicios:** ReportService, StatisticsService
+- **Funcionalidades:** Dashboard con métricas, gestión de catálogo, usuarios, informes
+
+### 9. Marketing y Promociones
+- **Modelos:** Coupon, Discount, Campaign, Promotion
+- **Controladores:** CouponController, DiscountController
+- **Servicios:** PromotionService, MarketingService
+- **Funcionalidades:** Cupones, descuentos, promociones, productos destacados
+
+### 10. API y Integraciones
+- **Controladores:** API/ProductController, API/OrderController, API/UserController
+- **Recursos:** ProductResource, UserResource, OrderResource
+- **Middleware:** API auth, rate limiting
+- **Funcionalidades:** Endpoints REST, webhooks, documentación API
+
+### 11. Integración de Pagos
+- **Modelos:** Payment, PaymentGateway, PaymentTransaction, Invoice
+- **Servicios:** PaymentGatewayService, PaymentProcessorService
+- **Implementaciones:** Pasarelas múltiples (transferencia, PayPal, Stripe, etc.)
+- **Funcionalidades:** Procesamiento de pagos, reembolsos, facturas
+
+### 12. SEO y Optimización
+- **Modelos:** SeoMetadata, Sitemap, Redirect
+- **Middleware:** SeoMiddleware
+- **Servicios:** SeoService, PerformanceService
+- **Funcionalidades:** Meta tags, URLs amigables, sitemaps, redirecciones
+
+## 🛠️ Tecnologías Implementadas
+
+- **Backend**: Laravel 10.x
+- **Frontend**: Blade, TailwindCSS, Alpine.js
+- **Base de Datos**: MySQL
+- **Autenticación**: Laravel Breeze
+- **Gestión de Roles**: Spatie Permission
+- **Herramientas Adicionales**: Laravel Debugbar, Intervention Image
+
+## 🔄 Flujo de Trabajo Git
+
+Este proyecto sigue la metodología Gitflow:
+
+- **main**: Código de producción estable
+- **develop**: Rama principal de desarrollo
+- **feature/x**: Funcionalidades nuevas
+- **hotfix/x**: Correcciones urgentes
+- **release/x**: Preparación de versiones
+
+## 📝 Comandos Útiles
+
+```bash
+# Generar nuevos componentes
+php artisan make:model Product -mcrf
+
+# Ejecutar pruebas
+php artisan test
+
+# Limpiar caché
+php artisan optimize:clear
+
+# Regenerar autoloader
+composer dump-autoload
+
+# Actualizar dependencias
+composer update && npm update
+```
+
+## 🧪 Testing
+
+El proyecto incluye pruebas unitarias y de integración:
+
+```bash
+# Ejecutar todas las pruebas
+php artisan test
+
+# Ejecutar pruebas específicas
+php artisan test --filter=ProductTest
+```
+
+## 📚 Documentación
+
+La documentación completa del proyecto está disponible en la carpeta `docs/` y cubre:
+
+- Guía de instalación detallada
+- Manual de usuario
+- Documentación técnica
+- API Reference
+
+## 🤝 Contribución
+
+Consulta [CONTRIBUTING.md](CONTRIBUTING.md) para conocer el proceso de contribución al proyecto.
+
+## 📄 Licencia
+
+Este proyecto está licenciado bajo [MIT License](LICENSE).
+
+## 👥 Autores
+
+- **Tu Nombre** - *Desarrollo inicial* - [tu-usuario](https://github.com/tu-usuario)
+
+## 🙏 Agradecimientos
+
+- Laravel Team por el increíble framework
+- Spatie por sus excelentes paquetes
+- Todos los contribuidores que han participado en este proyecto
