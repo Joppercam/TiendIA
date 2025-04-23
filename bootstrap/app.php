@@ -17,6 +17,17 @@ return Application::configure(basePath: dirname(__DIR__))
             'permission' => \Spatie\Permission\Middlewares\PermissionMiddleware::class,
             'role_or_permission' => \Spatie\Permission\Middlewares\RoleOrPermissionMiddleware::class,
         ]);
+
+        // Agregar el middleware del carrito al grupo web
+        $middleware->web(append: [
+            \App\Http\Middleware\CartMiddleware::class,
+        ]);
+        
+        // Si necesitas aplicar el middleware a todas las rutas, puedes usar esta opción
+        // $middleware->append([
+        //     \App\Http\Middleware\CartMiddleware::class,
+        // ]);
+        
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //

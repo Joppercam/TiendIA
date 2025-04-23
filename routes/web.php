@@ -7,6 +7,19 @@ use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\BrandController;
 use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\CartController;
+use App\Http\Controllers\WishListController;
+
+
+// Rutas del carrito de compras
+Route::prefix('cart')->group(function () {
+    Route::get('/', [CartController::class, 'index'])->name('cart.index');
+    Route::post('/add', [CartController::class, 'addItem'])->name('cart.add');
+    Route::put('/update', [CartController::class, 'updateItem'])->name('cart.update');
+    Route::delete('/remove', [CartController::class, 'removeItem'])->name('cart.remove');
+    Route::post('/clear', [CartController::class, 'clear'])->name('cart.clear');
+    Route::post('/save-for-later', [CartController::class, 'saveForLater'])->name('cart.save-for-later');
+});
 
 // Ruta principal
 Route::get('/', [HomeController::class, 'index'])->name('home');
@@ -52,6 +65,13 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
+// Rutas de la lista de deseos
+Route::prefix('wishlist')->middleware('auth')->group(function () {
+    Route::get('/', [WishListController::class, 'index'])->name('wishlist.index');
+    Route::post('/add', [WishListController::class, 'addItem'])->name('wishlist.add');
+    Route::delete('/remove', [WishListController::class, 'removeItem'])->name('wishlist.remove');
+    Route::post('/move-to-cart', [WishListController::class, 'moveToCart'])->name('wishlist.move-to-cart');
+});
 
 // Rutas de administración
 Route::middleware(['auth', 'role:admin|super-admin'])->prefix('admin')->name('admin.')->group(function () {

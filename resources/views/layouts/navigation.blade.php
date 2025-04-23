@@ -44,10 +44,30 @@
 
             <!-- Settings Dropdown -->
             <div class="hidden sm:flex sm:items-center sm:ms-6">
+                <!-- Agregar aquí los componentes de carrito y lista de deseos -->
+                <div class="flex items-center mr-4 space-x-4">
+                    <!-- Carrito de compras -->
+                    <x-mini-cart />
+                    
+                    <!-- Lista de deseos -->
+                    @auth
+                        <a href="{{ route('wishlist.index') }}" class="flex items-center text-gray-700 hover:text-gray-900 relative">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
+                            </svg>
+                            @if($wishListCount > 0)
+                                <span class="absolute -top-2 -right-2 bg-indigo-600 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs">
+                                    {{ $wishListCount }}
+                                </span>
+                            @endif
+                        </a>
+                    @endauth
+                </div>
+
                 <x-dropdown align="right" width="48">
                     <x-slot name="trigger">
                         <button class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-gray-500 bg-white hover:text-gray-700 focus:outline-none transition ease-in-out duration-150">
-                            <div>{{ Auth::user()->name }}</div>
+                            <div>{{ Auth::check() ? Auth::user()->name : 'Invitado' }}</div>
 
                             <div class="ms-1">
                                 <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
@@ -119,11 +139,44 @@
             @endif
         </div>
 
+
+        <!-- Añadir los componentes de carrito y wishlist para móvil -->
+        <div class="pt-2 pb-2 px-4 border-t border-gray-200 flex space-x-6">
+            <!-- Mini carrito para móvil -->
+            <a href="{{ route('cart.index') }}" class="flex items-center text-gray-700 hover:text-gray-900 relative">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path>
+                </svg>
+                <span class="ml-2">Carrito</span>
+                @if($cartItemCount > 0)
+                    <span class="absolute -top-2 -right-2 bg-red-600 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs">
+                        {{ $cartItemCount }}
+                    </span>
+                @endif
+            </a>
+            
+            <!-- Lista de deseos para móvil -->
+            @auth
+                <a href="{{ route('wishlist.index') }}" class="flex items-center text-gray-700 hover:text-gray-900 relative">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
+                    </svg>
+                    @if($wishListCount > 0)
+                        <span class="absolute -top-2 -right-2 bg-indigo-600 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs">
+                            {{ $wishListCount }}
+                        </span>
+                    @endif
+                    <span class="ml-2">Lista de deseos</span>
+                </a>
+            @endauth
+        </div>
+
+
         <!-- Responsive Settings Options -->
         <div class="pt-4 pb-1 border-t border-gray-200">
             <div class="px-4">
-                <div class="font-medium text-base text-gray-800">{{ Auth::user()->name }}</div>
-                <div class="font-medium text-sm text-gray-500">{{ Auth::user()->email }}</div>
+                <div class="font-medium text-base text-gray-800">{{ Auth::check() ? Auth::user()->name : 'Invitado' }}</div>
+                <div class="font-medium text-sm text-gray-500">{{ Auth::check() ? Auth::user()->email : '' }}</div>
             </div>
 
             <div class="mt-3 space-y-1">
