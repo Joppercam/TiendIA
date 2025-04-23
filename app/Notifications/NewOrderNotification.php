@@ -8,7 +8,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
-class OrderConfirmation extends Notification implements ShouldQueue
+class NewOrderNotification extends Notification implements ShouldQueue
 {
     use Queueable;
 
@@ -17,7 +17,7 @@ class OrderConfirmation extends Notification implements ShouldQueue
     /**
      * Create a new notification instance.
      *
-     * @param  \App\Models\Order  $order
+     * @param Order $order
      * @return void
      */
     public function __construct(Order $order)
@@ -44,16 +44,17 @@ class OrderConfirmation extends Notification implements ShouldQueue
      */
     public function toMail($notifiable)
     {
-        $url = url('/orders/' . $this->order->id);
-
+        $url = url('/admin/orders/' . $this->order->id);
+        
         return (new MailMessage)
-            ->subject('Confirmación de pedido - ' . $this->order->order_number)
-            ->greeting('¡Gracias por tu pedido!')
-            ->line('Hemos recibido tu pedido correctamente y está siendo procesado.')
+            ->subject('Nuevo Pedido: #' . $this->order->order_number)
+            ->greeting('Hola ' . $notifiable->name)
+            ->line('Se ha recibido un nuevo pedido en la tienda.')
             ->line('Número de pedido: ' . $this->order->order_number)
-            ->line('Importe total: ' . number_format($this->order->total, 2) . ' €')
-            ->action('Ver detalles del pedido', $url)
-            ->line('Gracias por comprar en TiendIA.');
+            ->line('Cliente: ' . ($this->order->user ? $this->order->user->name : $this->order->guest_name))
+            ->line('Total: ' . $this->order->currency . ' ' . number_format($this->order->total, 2))
+            ->action('Ver Detalles del Pedido', $url)
+            ->line('Gracias por utilizar nuestra aplicación.');
     }
 
     /**
@@ -68,8 +69,8 @@ class OrderConfirmation extends Notification implements ShouldQueue
             'order_id' => $this->order->id,
             'order_number' => $this->order->order_number,
             'total' => $this->order->total,
-            'status' => $this->order->status,
-            'message' => 'Tu pedido #' . $this->order->order_number . ' ha sido confirmado.'
+            'customer' => $this->order->user ? $this->order->user->name : $this->order->guest_name,
+            'message' => 'Nuevo pedido recibido: #' . $this->order->order_number
         ];
     }
 }

@@ -2,13 +2,13 @@
 
 namespace App\Notifications;
 
-use App\Models\Order;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
+use App\Models\Order;
 
-class OrderConfirmation extends Notification implements ShouldQueue
+class DeliveryConfirmation extends Notification implements ShouldQueue
 {
     use Queueable;
 
@@ -17,7 +17,7 @@ class OrderConfirmation extends Notification implements ShouldQueue
     /**
      * Create a new notification instance.
      *
-     * @param  \App\Models\Order  $order
+     * @param Order $order
      * @return void
      */
     public function __construct(Order $order)
@@ -28,7 +28,7 @@ class OrderConfirmation extends Notification implements ShouldQueue
     /**
      * Get the notification's delivery channels.
      *
-     * @param  mixed  $notifiable
+     * @param mixed $notifiable
      * @return array
      */
     public function via($notifiable)
@@ -39,27 +39,27 @@ class OrderConfirmation extends Notification implements ShouldQueue
     /**
      * Get the mail representation of the notification.
      *
-     * @param  mixed  $notifiable
+     * @param mixed $notifiable
      * @return \Illuminate\Notifications\Messages\MailMessage
      */
     public function toMail($notifiable)
     {
-        $url = url('/orders/' . $this->order->id);
+        $url = url('/account/orders/' . $this->order->id . '/review');
 
         return (new MailMessage)
-            ->subject('Confirmación de pedido - ' . $this->order->order_number)
-            ->greeting('¡Gracias por tu pedido!')
-            ->line('Hemos recibido tu pedido correctamente y está siendo procesado.')
-            ->line('Número de pedido: ' . $this->order->order_number)
-            ->line('Importe total: ' . number_format($this->order->total, 2) . ' €')
-            ->action('Ver detalles del pedido', $url)
-            ->line('Gracias por comprar en TiendIA.');
+            ->subject('Pedido #' . $this->order->order_number . ' entregado')
+            ->greeting('¡Tu pedido ha sido entregado!')
+            ->line('Nos complace informarte que tu pedido #' . $this->order->order_number . ' ha sido entregado.')
+            ->line('Esperamos que estés disfrutando de tu compra.')
+            ->action('Dejar una reseña', $url)
+            ->line('Gracias por confiar en nosotros.');
     }
+
 
     /**
      * Get the array representation of the notification.
      *
-     * @param  mixed  $notifiable
+     * @param mixed $notifiable
      * @return array
      */
     public function toArray($notifiable)
@@ -67,9 +67,8 @@ class OrderConfirmation extends Notification implements ShouldQueue
         return [
             'order_id' => $this->order->id,
             'order_number' => $this->order->order_number,
-            'total' => $this->order->total,
-            'status' => $this->order->status,
-            'message' => 'Tu pedido #' . $this->order->order_number . ' ha sido confirmado.'
+            'delivered_at' => $this->order->delivered_at,
+            'message' => 'Tu pedido #' . $this->order->order_number . ' ha sido entregado con éxito.'
         ];
     }
 }

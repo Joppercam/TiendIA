@@ -124,4 +124,39 @@ Route::get('admin/inventory-dashboard', [App\Http\Controllers\Admin\InventoryDas
     ->name('admin.inventory.dashboard');
 
 
+    // Rutas de administración
+    Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin,super-admin'])->group(function () {
+        // Rutas de Gestión de Pedidos
+        Route::get('orders', [App\Http\Controllers\Admin\OrderController::class, 'index'])->name('orders.index');
+        Route::get('orders/{order}', [App\Http\Controllers\Admin\OrderController::class, 'show'])->name('orders.show');
+        Route::put('orders/{order}/update-status', [App\Http\Controllers\Admin\OrderController::class, 'updateStatus'])->name('orders.update-status');
+        Route::put('orders/{order}/cancel', [App\Http\Controllers\Admin\OrderController::class, 'cancel'])->name('orders.cancel');
+        Route::get('orders/{order}/generate-invoice', [App\Http\Controllers\Admin\OrderController::class, 'generateInvoice'])->name('orders.generate-invoice');
+        
+        // Rutas de Gestión de Envíos
+        Route::resource('shipments', App\Http\Controllers\Admin\ShipmentController::class)->except(['destroy']);
+        Route::get('orders/{order}/shipments/create', [App\Http\Controllers\Admin\ShipmentController::class, 'create'])->name('shipments.create');
+        Route::post('orders/{order}/shipments', [App\Http\Controllers\Admin\ShipmentController::class, 'store'])->name('shipments.store');
+        Route::put('shipments/{shipment}/mark-as-delivered', [App\Http\Controllers\Admin\ShipmentController::class, 'markAsDelivered'])->name('shipments.mark-as-delivered');
+        Route::post('shipments/{shipment}/tracking-update', [App\Http\Controllers\Admin\ShipmentController::class, 'addTrackingUpdate'])->name('shipments.tracking-update');
+        Route::put('shipments/{shipment}/update-tracking', [App\Http\Controllers\Admin\ShipmentController::class, 'updateTracking'])->name('shipments.update-tracking');
+        Route::get('shipments/{shipment}/print-label', [App\Http\Controllers\Admin\ShipmentController::class, 'printLabel'])->name('shipments.print-label');
+    });
+    
+    // Rutas de tienda para clientes
+    Route::prefix('account')->name('shop.')->middleware(['auth'])->group(function () {
+        // Rutas de Pedidos para Clientes
+        Route::get('orders', [App\Http\Controllers\Shop\OrderController::class, 'index'])->name('orders.index');
+        Route::get('orders/{order}', [App\Http\Controllers\Shop\OrderController::class, 'show'])->name('orders.show');
+        Route::get('orders/{order}/track', [App\Http\Controllers\Shop\OrderController::class, 'track'])->name('orders.track');
+        Route::get('orders/{order}/review', [App\Http\Controllers\Shop\OrderController::class, 'review'])->name('orders.review');
+        Route::post('orders/{order}/review', [App\Http\Controllers\Shop\OrderController::class, 'storeReview'])->name('orders.store-review');
+        Route::put('orders/{order}/cancel', [App\Http\Controllers\Shop\OrderController::class, 'cancel'])->name('orders.cancel');
+        Route::post('orders/{order}/request-return', [App\Http\Controllers\Shop\OrderController::class, 'requestReturn'])->name('orders.request-return');
+        // routes/web.php (continuación)
+    Route::get('orders/{order}/invoice', [App\Http\Controllers\Shop\OrderController::class, 'downloadInvoice'])->name('orders.download-invoice');
+    Route::post('orders/{order}/reorder', [App\Http\Controllers\Shop\OrderController::class, 'reorder'])->name('orders.reorder');
+});
+
+
 require __DIR__.'/auth.php';
