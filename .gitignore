@@ -1,0 +1,42 @@
+# Archivos del sistema
+.DS_Store
+Thumbs.db
+
+# Directorios y archivos de dependencias
+/node_modules
+/vendor
+/storage/framework/cache/*
+/storage/framework/sessions/*
+/storage/framework/views/*
+/storage/logs/*
+/storage/app/public/*
+
+# Archivos de entorno
+.env
+.env.backup
+.env.production
+
+# Archivos de construcción y compilación
+/public/hot
+/public/storage
+/public/build
+/public/css
+/public/js
+/public/mix-manifest.json
+
+# Archivos de configuración local
+phpunit.xml
+.phpunit.result.cache
+docker-compose.override.yml
+Homestead.json
+Homestead.yaml
+
+# Archivos de IDE y editores
+/.idea
+/.vscode
+/_ide_helper.php
+/_ide_helper_models.php
+.phpstorm.meta.php
+
+# Archivos específicos de la aplicación
+/storage/*.key
