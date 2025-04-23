@@ -16,6 +16,8 @@ class DatabaseSeeder extends Seeder
             BrandSeeder::class,
             AttributeSeeder::class,
             ProductSeeder::class,
+            SupplierSeeder::class,
+            InventorySeeder::class,
         ]);
         
         // Crear un usuario super-admin

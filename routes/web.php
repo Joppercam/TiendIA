@@ -65,5 +65,20 @@ Route::middleware(['auth', 'role:admin|super-admin'])->prefix('admin')->name('ad
     Route::resource('products', ProductController::class);
 });
 
+// Rutas de administración para inventario
+Route::middleware(['auth', 'role:admin|super-admin|editor'])->prefix('admin')->name('admin.')->group(function () {
+    // Rutas de inventario
+    Route::resource('inventory', App\Http\Controllers\Admin\InventoryController::class)->except(['create', 'store', 'destroy']);
+    
+    // Rutas de movimientos de inventario
+    Route::resource('inventory-movements', App\Http\Controllers\Admin\InventoryMovementController::class)->only(['index', 'show', 'create', 'store']);
+    
+    // Rutas de proveedores
+    Route::resource('suppliers', App\Http\Controllers\Admin\SupplierController::class);
+});
+
+Route::get('admin/inventory-dashboard', [App\Http\Controllers\Admin\InventoryDashboardController::class, 'index'])
+    ->name('admin.inventory.dashboard');
+
 
 require __DIR__.'/auth.php';

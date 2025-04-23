@@ -10,11 +10,35 @@
                     </a>
                 </div>
 
+                
                 <!-- Navigation Links -->
                 <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
                     <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
                         {{ __('Dashboard') }}
                     </x-nav-link>
+                    
+                    @if(auth()->check() && auth()->user()->hasRole(['admin', 'super-admin']))
+                        <!-- Admin Links -->
+                        <x-nav-link :href="route('admin.products.index')" :active="request()->routeIs('admin.products.*')">
+                            {{ __('Productos') }}
+                        </x-nav-link>
+                        
+                        <x-nav-link :href="route('admin.categories.index')" :active="request()->routeIs('admin.categories.*')">
+                            {{ __('Categorías') }}
+                        </x-nav-link>
+                        
+                        <x-nav-link :href="route('admin.brands.index')" :active="request()->routeIs('admin.brands.*')">
+                            {{ __('Marcas') }}
+                        </x-nav-link>
+                        
+                        <x-nav-link :href="route('admin.inventory.dashboard')" :active="request()->routeIs('admin.inventory.*')">
+                            {{ __('Inventario') }}
+                        </x-nav-link>
+                        
+                        <x-nav-link :href="route('admin.suppliers.index')" :active="request()->routeIs('admin.suppliers.*')">
+                            {{ __('Proveedores') }}
+                        </x-nav-link>
+                    @endif
                 </div>
             </div>
 
@@ -70,6 +94,29 @@
             <x-responsive-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
                 {{ __('Dashboard') }}
             </x-responsive-nav-link>
+            
+            @if(auth()->check() && auth()->user()->hasRole(['admin', 'super-admin']))
+                <!-- Admin Links -->
+                <x-responsive-nav-link :href="route('admin.products.index')" :active="request()->routeIs('admin.products.*')">
+                    {{ __('Productos') }}
+                </x-responsive-nav-link>
+                
+                <x-responsive-nav-link :href="route('admin.categories.index')" :active="request()->routeIs('admin.categories.*')">
+                    {{ __('Categorías') }}
+                </x-responsive-nav-link>
+                
+                <x-responsive-nav-link :href="route('admin.brands.index')" :active="request()->routeIs('admin.brands.*')">
+                    {{ __('Marcas') }}
+                </x-responsive-nav-link>
+                
+                <x-responsive-nav-link :href="route('admin.inventory.dashboard')" :active="request()->routeIs('admin.inventory.*')">
+                    {{ __('Inventario') }}
+                </x-responsive-nav-link>
+                
+                <x-responsive-nav-link :href="route('admin.suppliers.index')" :active="request()->routeIs('admin.suppliers.*')">
+                    {{ __('Proveedores') }}
+                </x-responsive-nav-link>
+            @endif
         </div>
 
         <!-- Responsive Settings Options -->
