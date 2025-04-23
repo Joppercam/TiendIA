@@ -9,6 +9,29 @@ use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\WishListController;
+use App\Http\Controllers\CheckoutController;
+use App\Http\Controllers\AddressController;
+
+
+
+// Checkout Routes
+Route::prefix('checkout')->name('checkout.')->middleware(['auth', 'verified'])->group(function () {
+    Route::get('/', [CheckoutController::class, 'index'])->name('index');
+    Route::post('/address', [CheckoutController::class, 'address'])->name('address');
+    Route::get('/payment', [CheckoutController::class, 'payment'])->name('payment');
+    Route::post('/payment', [CheckoutController::class, 'processPayment'])->name('process-payment');
+    Route::get('/review', [CheckoutController::class, 'review'])->name('review');
+    Route::post('/complete', [CheckoutController::class, 'complete'])->name('complete');
+    Route::get('/success/{order}', [CheckoutController::class, 'success'])->name('success');
+});
+
+// Guest Checkout Route
+Route::get('/checkout/guest', [CheckoutController::class, 'guest'])->name('checkout.guest');
+
+// Address Routes
+Route::middleware(['auth', 'verified'])->group(function () {
+    Route::resource('addresses', AddressController::class);
+});
 
 
 // Rutas del carrito de compras

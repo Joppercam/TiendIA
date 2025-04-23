@@ -3,6 +3,10 @@
 namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
+use App\Services\CartService;
+use App\Services\CheckoutService;
+use App\Services\PaymentService;
+use App\Services\InventoryService;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -11,7 +15,29 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        // Registrar el servicio de carrito
+        $this->app->singleton(CartService::class, function ($app) {
+            return new CartService();
+        });
+
+        // Registrar el servicio de inventario
+        $this->app->singleton(InventoryService::class, function ($app) {
+            return new InventoryService();
+        });
+
+        // Registrar el servicio de pagos
+        $this->app->singleton(PaymentService::class, function ($app) {
+            return new PaymentService();
+        });
+
+        // Registrar el servicio de checkout con sus dependencias
+        $this->app->singleton(CheckoutService::class, function ($app) {
+            return new CheckoutService(
+                $app->make(CartService::class),
+                $app->make(PaymentService::class),
+                $app->make(InventoryService::class)
+            );
+        });
     }
 
     /**
@@ -21,4 +47,6 @@ class AppServiceProvider extends ServiceProvider
     {
         //
     }
+
+    
 }
