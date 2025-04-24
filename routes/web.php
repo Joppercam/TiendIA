@@ -159,4 +159,51 @@ Route::get('admin/inventory-dashboard', [App\Http\Controllers\Admin\InventoryDas
 });
 
 
+// En routes/web.php
+
+// Rutas públicas para reseñas
+Route::group(['prefix' => 'products/{product}'], function () {
+    // Reseñas
+    Route::get('/reviews', [App\Http\Controllers\ReviewController::class, 'index'])->name('products.reviews.index');
+    Route::get('/reviews/create', [App\Http\Controllers\ReviewController::class, 'create'])->name('products.reviews.create');
+    Route::post('/reviews', [App\Http\Controllers\ReviewController::class, 'store'])->name('products.reviews.store');
+    Route::get('/reviews/{review}/edit', [App\Http\Controllers\ReviewController::class, 'edit'])->name('products.reviews.edit');
+    Route::put('/reviews/{review}', [App\Http\Controllers\ReviewController::class, 'update'])->name('products.reviews.update');
+    Route::delete('/reviews/{review}', [App\Http\Controllers\ReviewController::class, 'destroy'])->name('products.reviews.destroy');
+    Route::post('/rate', [App\Http\Controllers\ReviewController::class, 'rateProduct'])->name('products.rate');
+    
+    // Preguntas y respuestas
+    Route::get('/questions', [App\Http\Controllers\QuestionController::class, 'index'])->name('products.questions.index');
+    Route::post('/questions', [App\Http\Controllers\QuestionController::class, 'store'])->name('products.questions.store');
+    Route::get('/questions/{question}/edit', [App\Http\Controllers\QuestionController::class, 'edit'])->name('products.questions.edit');
+    Route::put('/questions/{question}', [App\Http\Controllers\QuestionController::class, 'update'])->name('products.questions.update');
+    Route::delete('/questions/{question}', [App\Http\Controllers\QuestionController::class, 'destroy'])->name('products.questions.destroy');
+    Route::post('/questions/{question}/answers', [App\Http\Controllers\QuestionController::class, 'storeAnswer'])->name('products.questions.answers.store');
+    Route::get('/questions/{question}/answers/{answer}/edit', [App\Http\Controllers\QuestionController::class, 'editAnswer'])->name('products.questions.answers.edit');
+    Route::put('/questions/{question}/answers/{answer}', [App\Http\Controllers\QuestionController::class, 'updateAnswer'])->name('products.questions.answers.update');
+    Route::delete('/questions/{question}/answers/{answer}', [App\Http\Controllers\QuestionController::class, 'destroyAnswer'])->name('products.questions.answers.destroy');
+});
+
+// Rutas de administración
+Route::group(['prefix' => 'admin', 'middleware' => ['auth', 'role:admin|editor'], 'as' => 'admin.'], function () {
+    // Dashboard de reseñas
+    Route::get('/reviews/dashboard', [App\Http\Controllers\Admin\ReviewsManagementController::class, 'dashboard'])->name('reviews.dashboard');
+    
+    // Gestión de reseñas
+    Route::get('/reviews/pending', [App\Http\Controllers\Admin\ReviewsManagementController::class, 'pendingReviews'])->name('reviews.pending');
+    Route::patch('/reviews/{review}/approve', [App\Http\Controllers\Admin\ReviewsManagementController::class, 'approveReview'])->name('reviews.approve');
+    Route::delete('/reviews/{review}/reject', [App\Http\Controllers\Admin\ReviewsManagementController::class, 'rejectReview'])->name('reviews.reject');
+    Route::patch('/reviews/{review}/toggle-feature', [App\Http\Controllers\Admin\ReviewsManagementController::class, 'toggleFeatureReview'])->name('reviews.toggle-feature');
+    
+    // Gestión de preguntas
+    Route::get('/questions/pending', [App\Http\Controllers\Admin\ReviewsManagementController::class, 'pendingQuestions'])->name('questions.pending');
+    Route::patch('/questions/{question}/approve', [App\Http\Controllers\Admin\ReviewsManagementController::class, 'approveQuestion'])->name('questions.approve');
+    Route::delete('/questions/{question}/reject', [App\Http\Controllers\Admin\ReviewsManagementController::class, 'rejectQuestion'])->name('questions.reject');
+    
+    // Gestión de respuestas
+    Route::get('/answers/pending', [App\Http\Controllers\Admin\ReviewsManagementController::class, 'pendingAnswers'])->name('answers.pending');
+    Route::patch('/answers/{answer}/approve', [App\Http\Controllers\Admin\ReviewsManagementController::class, 'approveAnswer'])->name('answers.approve');
+    Route::delete('/answers/{answer}/reject', [App\Http\Controllers\Admin\ReviewsManagementController::class, 'rejectAnswer'])->name('answers.reject');
+});
+
 require __DIR__.'/auth.php';

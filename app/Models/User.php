@@ -34,4 +34,26 @@ class User extends Authenticatable
     {
         return $this->hasOne(Profile::class);
     }
+
+    // En app/Models/User.php añadir estas relaciones
+
+    public function reviews()
+    {
+        return $this->hasMany(Review::class);
+    }
+
+    public function ratings()
+    {
+        return $this->hasMany(Rating::class);
+    }
+
+    public function questions()
+    {
+        return $this->hasMany(Question::class);
+    }
+
+    public function answers()
+    {
+        return $this->hasMany(Answer::class);
+    }
 }

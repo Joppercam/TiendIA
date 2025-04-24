@@ -55,6 +55,28 @@
                     <p class="text-gray-600 mb-4">Marca: <a href="{{ route('shop.products.brand', $product->brand->slug) }}" class="text-indigo-600 hover:text-indigo-800">{{ $product->brand->name }}</a></p>
                 @endif
                 
+                <!-- Valoraciones (Nuevo) -->
+                <div class="mb-4">
+                    <div class="flex items-center">
+                        <div class="flex text-yellow-400 mr-2">
+                            @for ($i = 1; $i <= 5; $i++)
+                                @if ($i <= round($product->average_rating ?? 0))
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                                    </svg>
+                                @else
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
+                                    </svg>
+                                @endif
+                            @endfor
+                        </div>
+                        <span class="text-lg font-bold">{{ number_format($product->average_rating ?? 0, 1) }}</span>
+                        <span class="text-gray-500 ml-2">({{ $product->rating_count ?? 0 }} valoraciones)</span>
+                        <a href="{{ route('products.reviews.index', $product) }}" class="ml-4 text-indigo-600 hover:text-indigo-800 text-sm">Ver reseñas</a>
+                    </div>
+                </div>
+                
                 <div class="mb-4">
                     <span class="text-gray-800 font-semibold">SKU:</span> {{ $product->sku }}
                 </div>
@@ -153,6 +175,130 @@
             </div>
         </div>
         
+        <!-- Reseñas destacadas (Nuevo) -->
+        @if(isset($product->reviews) && $product->reviews()->approved()->featured()->count() > 0)
+        <div class="mt-12 bg-white rounded-lg shadow-md p-6">
+            <h2 class="text-2xl font-bold mb-6">Reseñas destacadas</h2>
+            
+            <div class="space-y-6">
+                @foreach($product->reviews()->approved()->featured()->with('user:id,name')->with('rating')->limit(2)->get() as $review)
+                    <div class="border-l-4 border-indigo-500 pl-4 py-2">
+                        <div class="flex items-center mb-2">
+                            <div class="flex text-yellow-400 mr-2">
+                                @for ($i = 1; $i <= 5; $i++)
+                                    @if ($i <= $review->rating->score)
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                                        </svg>
+                                    @else
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
+                                        </svg>
+                                    @endif
+                                @endfor
+                            </div>
+                            <h3 class="text-lg font-semibold">{{ $review->title }}</h3>
+                        </div>
+                        <p class="text-gray-700 mb-2">{{ Str::limit($review->comment, 200) }}</p>
+                        <div class="flex items-center text-sm text-gray-500">
+                            <span>{{ $review->user->name }}</span>
+                            <span class="mx-2">•</span>
+                            <span>{{ $review->created_at->format('d/m/Y') }}</span>
+                            @if($review->is_verified_purchase)
+                                <span class="ml-2 bg-green-100 text-green-800 text-xs px-2 py-0.5 rounded">Compra verificada</span>
+                            @endif
+                        </div>
+                    </div>
+                @endforeach
+                
+                <div class="text-center mt-4">
+                    <a href="{{ route('products.reviews.index', $product) }}" class="bg-indigo-100 text-indigo-700 hover:bg-indigo-200 px-4 py-2 rounded-md inline-block font-medium">
+                        Ver todas las reseñas
+                    </a>
+                </div>
+            </div>
+        </div>
+        @endif
+        
+        <!-- Preguntas y respuestas (Nuevo) -->
+        @if(isset($product->questions) && $product->questions()->approved()->count() > 0)
+        <div class="mt-12 bg-white rounded-lg shadow-md p-6">
+            <h2 class="text-2xl font-bold mb-6">Preguntas y respuestas</h2>
+            
+            <div class="space-y-6">
+                @foreach($product->questions()->approved()->with('user:id,name')->with(['answers' => function($q) {
+                    $q->approved()->latest();
+                }])->with('answers.user:id,name')->limit(2)->get() as $question)
+                    <div class="bg-gray-50 p-4 rounded-lg">
+                        <div class="flex items-start">
+                            <div class="flex-shrink-0 mr-4">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                            </div>
+                            <div class="flex-1">
+                                <p class="font-semibold mb-1">{{ $question->question }}</p>
+                                <p class="text-sm text-gray-500">{{ $question->user->name }} - {{ $question->created_at->format('d/m/Y') }}</p>
+                                
+                                @if($question->answers->count() > 0)
+                                    <div class="mt-4 pl-4 border-l-2 border-gray-200">
+                                        <div class="flex items-start">
+                                            <div class="flex-shrink-0 mr-4">
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                </svg>
+                                            </div>
+                                            <div class="flex-1">
+                                                <p class="mb-1">{{ $question->answers->first()->answer }}</p>
+                                                <p class="text-sm text-gray-500">
+                                                    {{ $question->answers->first()->user->name }} - {{ $question->answers->first()->created_at->format('d/m/Y') }}
+                                                    @if($question->answers->first()->is_from_seller)
+                                                        <span class="ml-2 bg-blue-100 text-blue-800 text-xs px-2 py-0.5 rounded">Vendedor</span>
+                                                    @endif
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                @endif
+                            </div>
+                        </div>
+                    </div>
+                @endforeach
+                
+                <div class="text-center mt-4">
+                    <a href="{{ route('products.questions.index', $product) }}" class="bg-indigo-100 text-indigo-700 hover:bg-indigo-200 px-4 py-2 rounded-md inline-block font-medium">
+                        Ver todas las preguntas
+                    </a>
+                </div>
+            </div>
+        </div>
+        @endif
+        
+        <!-- Formulario para hacer preguntas (Nuevo) -->
+        <div class="mt-8 bg-white rounded-lg shadow-md p-6">
+            <h2 class="text-xl font-bold mb-4">¿Tienes alguna pregunta?</h2>
+            
+            @auth
+                <form action="{{ route('products.questions.store', $product) }}" method="POST">
+                    @csrf
+                    <div class="mb-4">
+                        <textarea name="question" rows="2" 
+                                class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:border-indigo-500"
+                                placeholder="Escribe tu pregunta aquí..." required>{{ old('question') }}</textarea>
+                    </div>
+                    <div class="flex justify-end">
+                        <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2 px-4 rounded-md">
+                            Enviar pregunta
+                        </button>
+                    </div>
+                </form>
+            @else
+                <p class="text-gray-600">
+                    <a href="{{ route('login') }}" class="text-indigo-600 hover:text-indigo-800">Inicia sesión</a> para hacer una pregunta sobre este producto.
+                </p>
+            @endauth
+        </div>
+        
         <!-- Productos relacionados -->
         @if($relatedProducts->count() > 0)
             <div class="mt-16">
@@ -238,6 +384,50 @@
                 quantityInput.value = currentValue + 1;
             }
         });
+        
+        // Sistema de valoración con estrellas (Nuevo)
+        const quickRatingStars = document.querySelectorAll('.quick-rating-star');
+        
+        if (quickRatingStars.length > 0) {
+            quickRatingStars.forEach(star => {
+                star.addEventListener('click', function() {
+                    const productId = this.closest('.quick-rating').dataset.productId;
+                    const rating = this.dataset.rating;
+                    
+                    // Enviar la valoración mediante AJAX
+                    fetch(`/products/${productId}/rate`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                        },
+                        body: JSON.stringify({
+                            score: rating
+                        })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            // Actualizar la UI
+                            const stars = document.querySelectorAll('.quick-rating-star');
+                            
+                            stars.forEach(s => {
+                                if (s.dataset.rating <= rating) {
+                                    s.classList.add('text-yellow-400');
+                                    s.classList.remove('text-gray-300');
+                                } else {
+                                    s.classList.remove('text-yellow-400');
+                                    s.classList.add('text-gray-300');
+                                }
+                            });
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                    });
+                });
+            });
+        }
     });
 </script>
 @endsection

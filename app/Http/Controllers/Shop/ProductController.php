@@ -58,7 +58,15 @@ class ProductController extends Controller
                 'category', 
                 'brand', 
                 'images', 
-                'attributes.values'
+                'attributes.values',
+                'reviews' => function($query) {
+                    $query->approved()->with('user:id,name')->with('rating');
+                },
+                'questions' => function($query) {
+                    $query->approved()->with('user:id,name')->with(['answers' => function($q) {
+                        $q->approved()->latest()->with('user:id,name');
+                    }]);
+                }
             ])
             ->where('slug', $slug)
             ->where('status', 'active')

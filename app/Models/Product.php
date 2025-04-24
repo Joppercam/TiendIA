@@ -66,4 +66,42 @@ class Product extends Model
         
         return $validFrom && $validTo;
     }
+
+    // En app/Models/Product.php añadir estas relaciones
+
+    public function reviews()
+    {
+        return $this->hasMany(Review::class);
+    }
+
+    public function ratings()
+    {
+        return $this->hasMany(Rating::class);
+    }
+
+    public function questions()
+    {
+        return $this->hasMany(Question::class);
+    }
+
+    // Métodos útiles para calcular valoraciones medias
+    public function getAverageRatingAttribute()
+    {
+        return $this->ratings()->avg('score') ?: 0;
+    }
+
+    public function getRatingCountAttribute()
+    {
+        return $this->ratings()->count();
+    }
+
+    public function getReviewCountAttribute()
+    {
+        return $this->reviews()->approved()->count();
+    }
+
+    public function getQuestionsCountAttribute()
+    {
+        return $this->questions()->approved()->count();
+    }
 }
