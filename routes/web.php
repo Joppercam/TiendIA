@@ -231,4 +231,33 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'admin'])->group(fun
 });
 
 
+// routes/web.php
+
+// Rutas de administración
+Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin,super-admin'])->group(function () {
+    // Gestión de Cupones
+    Route::resource('coupons', \App\Http\Controllers\Admin\CouponController::class);
+    Route::get('coupons/generate-code', [\App\Http\Controllers\Admin\CouponController::class, 'generateCode'])->name('coupons.generate-code');
+    
+    // Gestión de Descuentos
+    Route::resource('discounts', \App\Http\Controllers\Admin\DiscountController::class);
+    
+    // Gestión de Campañas
+    Route::resource('campaigns', \App\Http\Controllers\Admin\CampaignController::class);
+    
+    // Gestión de Promociones (implementaremos más tarde)
+    Route::resource('promotions', \App\Http\Controllers\Admin\PromotionController::class);
+});
+
+// Rutas públicas para clientes
+Route::prefix('shop')->name('shop.')->group(function () {
+    // Aplicar/Eliminar cupones
+    Route::post('coupon/apply', [\App\Http\Controllers\Shop\CouponController::class, 'apply'])->name('coupon.apply');
+    Route::delete('coupon/remove', [\App\Http\Controllers\Shop\CouponController::class, 'remove'])->name('coupon.remove');
+    
+    // Campañas
+    Route::get('campaigns', [\App\Http\Controllers\Shop\CampaignController::class, 'index'])->name('campaigns.index');
+    Route::get('campaigns/{slug}', [\App\Http\Controllers\Shop\CampaignController::class, 'show'])->name('campaigns.show');
+});
+
 require __DIR__.'/auth.php';

@@ -7,6 +7,8 @@ use App\Services\CartService;
 use App\Services\CheckoutService;
 use App\Services\PaymentService;
 use App\Services\InventoryService;
+use App\Services\PromotionService;
+use App\Services\MarketingService;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -38,6 +40,16 @@ class AppServiceProvider extends ServiceProvider
                 $app->make(InventoryService::class)
             );
         });
+
+        // Registrar servicios de marketing y promociones
+        $this->app->singleton(PromotionService::class, function ($app) {
+            return new PromotionService();
+        });
+        
+        $this->app->singleton(MarketingService::class, function ($app) {
+            return new MarketingService();
+        });
+
     }
 
     /**
