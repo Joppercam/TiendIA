@@ -11,7 +11,9 @@ use App\Http\Controllers\CartController;
 use App\Http\Controllers\WishListController;
 use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\AddressController;
-
+use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Admin\UserManagerController;
+use App\Http\Controllers\Admin\ReportController;
 
 
 // Checkout Routes
@@ -205,5 +207,28 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth', 'role:admin|editor']
     Route::patch('/answers/{answer}/approve', [App\Http\Controllers\Admin\ReviewsManagementController::class, 'approveAnswer'])->name('answers.approve');
     Route::delete('/answers/{answer}/reject', [App\Http\Controllers\Admin\ReviewsManagementController::class, 'rejectAnswer'])->name('answers.reject');
 });
+
+
+// Rutas de administración agrupadas
+Route::prefix('admin')->name('admin.')->middleware(['auth', 'admin'])->group(function () {
+    // Dashboard
+    Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
+    
+    // Gestión de usuarios
+    Route::resource('users', UserManagerController::class);
+    
+    // Reportes
+    Route::get('reports', [ReportController::class, 'index'])->name('reports.index');
+    Route::get('reports/sales', [ReportController::class, 'sales'])->name('reports.sales');
+    Route::get('reports/products', [ReportController::class, 'products'])->name('reports.products');
+    Route::get('reports/customers', [ReportController::class, 'customers'])->name('reports.customers');
+    Route::get('reports/export/{type}', [ReportController::class, 'export'])->name('reports.export');
+    
+    // Rutas para analíticas (opcional, usando AnalyticsService)
+    Route::get('analytics/products/{product}', [ReportController::class, 'productAnalytics'])->name('analytics.product');
+    Route::get('analytics/categories/{category?}', [ReportController::class, 'categoryAnalytics'])->name('analytics.category');
+    Route::get('analytics/customers/{user?}', [ReportController::class, 'customerAnalytics'])->name('analytics.customer');
+});
+
 
 require __DIR__.'/auth.php';
