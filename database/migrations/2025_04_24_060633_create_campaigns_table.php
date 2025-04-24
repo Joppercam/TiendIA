@@ -13,7 +13,7 @@ return new class extends Migration
             $table->string('name');
             $table->text('description')->nullable();
             $table->timestamp('starts_at');
-            $table->timestamp('ends_at');
+            $table->timestamp('ends_at')->useCurrent();
             $table->boolean('is_active')->default(true);
             $table->string('banner_image')->nullable();
             $table->string('banner_link')->nullable();

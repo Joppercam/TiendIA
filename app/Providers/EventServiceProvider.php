@@ -1,5 +1,4 @@
 <?php
-// app/Providers/EventServiceProvider.php
 
 namespace App\Providers;
 
