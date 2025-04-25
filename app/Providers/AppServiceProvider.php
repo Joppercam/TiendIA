@@ -9,6 +9,9 @@ use App\Services\PaymentService;
 use App\Services\InventoryService;
 use App\Services\PromotionService;
 use App\Services\MarketingService;
+use App\Services\InvoiceService;
+use App\Services\PaymentGatewayService;
+use App\Services\PaymentProcessorService;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -48,6 +51,16 @@ class AppServiceProvider extends ServiceProvider
         
         $this->app->singleton(MarketingService::class, function ($app) {
             return new MarketingService();
+        });
+
+        // Registrar el servicio de pasarelas de pago
+        $this->app->singleton(PaymentGatewayService::class, function ($app) {
+            return new PaymentGatewayService();
+        });
+        
+        // Registrar el servicio de facturas
+        $this->app->singleton(InvoiceService::class, function ($app) {
+            return new InvoiceService();
         });
 
     }

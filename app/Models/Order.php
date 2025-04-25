@@ -41,7 +41,14 @@ class Order extends Model
         'paid_at',
         'shipped_at',
         'delivered_at',
-        'cancelled_at'
+        'cancelled_at',
+        'payment_status',
+        'payment_method',
+    ];
+
+    protected $casts = [
+        // Casts existentes...
+        'paid_at' => 'datetime',
     ];
 
     /**
@@ -98,5 +105,22 @@ class Order extends Model
     public function shipment(): HasOne
     {
         return $this->hasOne(Shipment::class);
+    }
+
+    public function payments()
+    {
+        return $this->hasMany(Payment::class);
+    }
+    
+    // Relación con factura
+    public function invoice()
+    {
+        return $this->hasOne(Invoice::class);
+    }
+    
+    // Método para verificar si el pedido está pagado
+    public function isPaid()
+    {
+        return $this->payment_status === 'completed';
     }
 }

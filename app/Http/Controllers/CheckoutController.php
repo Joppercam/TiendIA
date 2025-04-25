@@ -3,9 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Models\Address;
+use App\Models\PaymentGateway;
 use App\Models\PaymentMethod;
 use App\Services\CartService;
 use App\Services\CheckoutService;
+use App\Services\PaymentGatewayService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -13,11 +15,17 @@ class CheckoutController extends Controller
 {
     protected $cartService;
     protected $checkoutService;
+    protected $paymentGatewayService;
 
-    public function __construct(CartService $cartService, CheckoutService $checkoutService)
+    public function __construct(
+        CartService $cartService, 
+        CheckoutService $checkoutService,
+        PaymentGatewayService $paymentGatewayService
+    )
     {
         $this->cartService = $cartService;
         $this->checkoutService = $checkoutService;
+        $this->paymentGatewayService = $paymentGatewayService;
         $this->middleware('auth')->except(['guest']);
         $this->middleware('checkout');
     }
@@ -64,24 +72,27 @@ class CheckoutController extends Controller
     {
         $cart = $this->cartService->getCart();
         $addresses = $this->checkoutService->getAddresses();
-        $paymentMethods = PaymentMethod::where('is_active', true)->get();
+        
+        // Obtener pasarelas de pago activas en lugar de métodos de pago
+        $paymentGateways = $this->paymentGatewayService->getActiveGateways();
         
         return view('checkout.payment', [
             'cart' => $cart,
             'addresses' => $addresses,
-            'paymentMethods' => $paymentMethods,
+            'paymentGateways' => $paymentGateways,
         ]);
     }
 
     public function processPayment(Request $request)
     {
         $validatedData = $request->validate([
-            'payment_method_id' => 'required|exists:payment_methods,id',
+            'gateway' => 'required|string|exists:payment_gateways,code',
+            'payment_data' => 'sometimes|array',
         ]);
         
-        $this->checkoutService->setPaymentMethod(
-            PaymentMethod::findOrFail($validatedData['payment_method_id'])
-        );
+        // Guardar el método de pago seleccionado
+        $gateway = PaymentGateway::where('code', $validatedData['gateway'])->where('is_active', true)->firstOrFail();
+        $this->checkoutService->setPaymentGateway($gateway);
         
         return redirect()->route('checkout.review');
     }
@@ -100,7 +111,38 @@ class CheckoutController extends Controller
     public function complete(Request $request)
     {
         try {
+            // Completar la orden
             $order = $this->checkoutService->completeOrder($request->all());
+            
+            // Inicializar el pago según la pasarela seleccionada
+            $paymentGateway = $this->checkoutService->getSelectedPaymentGateway();
+            
+            if ($paymentGateway) {
+                $response = $this->paymentGatewayService->initializePayment(
+                    $order->id,
+                    $paymentGateway->code,
+                    $request->input('payment_data', [])
+                );
+                
+                if (!$response['success']) {
+                    throw new \Exception($response['message'] ?? 'Error al inicializar el pago');
+                }
+                
+                // Si hay URL de redirección, redirigir al usuario
+                if (isset($response['redirect_url'])) {
+                    return redirect()->away($response['redirect_url']);
+                }
+                
+                // Para métodos como transferencia bancaria, mostrar instrucciones
+                if ($paymentGateway->code === 'bank_transfer') {
+                    return view('checkout.bank-transfer', [
+                        'order' => $order,
+                        'payment' => $response['payment'],
+                        'bankInfo' => $response['payment']->gateway_response['bank_information'] ?? null,
+                        'instructions' => $response['payment']->gateway_response['instructions'] ?? null
+                    ]);
+                }
+            }
             
             return redirect()->route('checkout.success', ['order' => $order->id]);
         } catch (\Exception $e) {
@@ -117,7 +159,7 @@ class CheckoutController extends Controller
             'order' => $order,
         ]);
     }
-
+    
     public function guest()
     {
         $cart = $this->cartService->getCart();

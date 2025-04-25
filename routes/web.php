@@ -260,4 +260,38 @@ Route::prefix('shop')->name('shop.')->group(function () {
     Route::get('campaigns/{slug}', [\App\Http\Controllers\Shop\CampaignController::class, 'show'])->name('campaigns.show');
 });
 
+
+// Rutas para checkout y pago (frontend)
+Route::middleware(['auth', 'verified'])->group(function () {
+    // Rutas de checkout existentes...
+    
+    // Rutas de pago
+    Route::get('/checkout/{order}/payment', [\App\Http\Controllers\PaymentController::class, 'index'])->name('checkout.payment');
+    Route::post('/checkout/{order}/payment', [\App\Http\Controllers\PaymentController::class, 'processPayment'])->name('checkout.payment.process');
+    Route::get('/checkout/payment/callback/{gateway}', [\App\Http\Controllers\PaymentController::class, 'handleCallback'])->name('checkout.payment.callback');
+    Route::get('/checkout/payment/success/{order}', [\App\Http\Controllers\PaymentController::class, 'success'])->name('checkout.payment.success');
+    Route::get('/checkout/payment/failure/{gateway}', [\App\Http\Controllers\PaymentController::class, 'failure'])->name('checkout.payment.failure');
+    Route::get('/checkout/payment/pending/{order}', [\App\Http\Controllers\PaymentController::class, 'pending'])->name('checkout.payment.pending');
+    Route::get('/checkout/payment/status/{order}', [\App\Http\Controllers\PaymentController::class, 'status'])->name('checkout.payment.status');
+    
+    // Ruta para descargar factura
+    Route::get('/orders/{order}/invoice', [\App\Http\Controllers\OrderController::class, 'downloadInvoice'])->name('orders.invoice.download');
+});
+
+// Rutas para administración de pagos (backend)
+Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin,super-admin'])->group(function () {
+    // Pagos
+    Route::get('/payments', [\App\Http\Controllers\Admin\PaymentController::class, 'index'])->name('payments.index');
+    Route::get('/payments/{payment}', [\App\Http\Controllers\Admin\PaymentController::class, 'show'])->name('payments.show');
+    Route::post('/payments/{payment}/verify', [\App\Http\Controllers\Admin\PaymentController::class, 'verify'])->name('payments.verify');
+    Route::post('/payments/{payment}/mark-as-paid', [\App\Http\Controllers\Admin\PaymentController::class, 'markAsPaid'])->name('payments.mark-as-paid');
+    Route::post('/payments/{payment}/refund', [\App\Http\Controllers\Admin\PaymentController::class, 'refund'])->name('payments.refund');
+    Route::get('/payments/{payment}/invoice', [\App\Http\Controllers\Admin\PaymentController::class, 'downloadInvoice'])->name('payments.invoice.download');
+    
+    // Pasarelas de pago
+    Route::resource('payment-gateways', \App\Http\Controllers\Admin\PaymentGatewayController::class);
+    Route::post('/payment-gateways/{gateway}/position', [\App\Http\Controllers\Admin\PaymentGatewayController::class, 'changePosition'])->name('payment-gateways.position');
+    Route::post('/payment-gateways/{gateway}/toggle-active', [\App\Http\Controllers\Admin\PaymentGatewayController::class, 'toggleActive'])->name('payment-gateways.toggle-active');
+});
+
 require __DIR__.'/auth.php';

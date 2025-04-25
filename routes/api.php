@@ -84,3 +84,9 @@ Route::prefix('v1/webhooks')->group(function () {
     Route::post('payment', [WebhookController::class, 'paymentWebhook']);
     Route::post('inventory', [WebhookController::class, 'inventoryWebhook']);
 });
+
+// Rutas para webhooks
+Route::prefix('webhooks')->name('api.webhooks.')->group(function () {
+    Route::post('/payment/{gateway}', [WebhookController::class, 'handlePaymentWebhook'])->name('payment');
+    Route::get('/test', [WebhookController::class, 'testWebhook'])->name('test');
+});
