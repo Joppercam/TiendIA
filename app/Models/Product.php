@@ -2,8 +2,11 @@
 
 namespace App\Models;
 
+use App\Traits\HasSeo;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 
 /**
@@ -25,13 +28,25 @@ use Illuminate\Database\Eloquent\Model;
 
 class Product extends Model
 {
-    use HasFactory;
+    use HasFactory, SoftDeletes, HasSeo;
 
     protected $fillable = [
-        'name', 'slug', 'description', 'short_description', 'price',
-        'special_price', 'special_price_from', 'special_price_to',
-        'sku', 'brand_id', 'category_id', 'status', 'featured',
-        'quantity', 'weight', 'meta_data'
+        'name', 
+        'slug', 
+        'description', 
+        'short_description', 
+        'price',
+        'special_price', 
+        'special_price_from', 
+        'special_price_to',
+        'sku', 
+        'brand_id', 
+        'category_id', 
+        'status', 
+        'featured',
+        'quantity', 
+        'weight', 
+        'meta_data'
     ];
 
     protected $casts = [
@@ -121,5 +136,113 @@ class Product extends Model
     public function getQuestionsCountAttribute()
     {
         return $this->questions()->approved()->count();
+    }
+
+    /**
+     * Determina si un producto tiene un precio especial activo.
+     *
+     * @return bool
+     */
+    public function hasValidSpecialPrice()
+    {
+        if (!$this->special_price) {
+            return false;
+        }
+
+        $now = now();
+        $from = $this->special_price_from;
+        $to = $this->special_price_to;
+
+        if ($from && $now->lt($from)) {
+            return false;
+        }
+
+        if ($to && $now->gt($to)) {
+            return false;
+        }
+
+        return true;
+    }
+
+
+    /**
+     * Obtiene el precio actual del producto considerando descuentos.
+     *
+     * @return float
+     */
+    public function getCurrentPrice()
+    {
+        return $this->hasValidSpecialPrice() ? $this->special_price : $this->price;
+    }
+
+    /**
+     * Obtiene datos estructurados para SEO.
+     * 
+     * @return array
+     */
+    public function getStructuredData()
+    {
+        // Si hay datos personalizados, los usamos
+        if ($this->seoMetadata && $this->seoMetadata->structured_data) {
+            return $this->seoMetadata->structured_data;
+        }
+
+        // Generamos datos estructurados básicos para el producto
+        $data = [
+            '@context' => 'https://schema.org',
+            '@type' => 'Product',
+            'name' => $this->name,
+            'description' => $this->short_description ?? substr(strip_tags($this->description), 0, 160),
+            'sku' => $this->sku,
+            'image' => $this->images()->where('is_primary', true)->first() 
+                ? url(Storage::url($this->images()->where('is_primary', true)->first()->image))
+                : ($this->images()->first() ? url(Storage::url($this->images()->first()->image)) : null),
+            'offers' => [
+                '@type' => 'Offer',
+                'priceCurrency' => 'CLP', // Ajustar según la moneda de la tienda
+                'price' => $this->getCurrentPrice(),
+                'availability' => $this->quantity > 0 
+                    ? 'https://schema.org/InStock' 
+                    : 'https://schema.org/OutOfStock',
+                'url' => route('shop.products.show', $this->slug)
+            ]
+        ];
+
+        // Agregamos marca si existe
+        if ($this->brand) {
+            $data['brand'] = [
+                '@type' => 'Brand',
+                'name' => $this->brand->name
+            ];
+        }
+
+        // Agregamos categoría si existe
+        if ($this->category) {
+            $data['category'] = $this->category->name;
+        }
+
+        // Agregamos valoraciones si existen
+        if ($this->ratings()->count() > 0) {
+            $avgRating = $this->ratings()->avg('rating');
+            $reviewCount = $this->ratings()->count();
+            
+            $data['aggregateRating'] = [
+                '@type' => 'AggregateRating',
+                'ratingValue' => number_format($avgRating, 1),
+                'reviewCount' => $reviewCount
+            ];
+        }
+        
+
+        return $data;
+    }
+
+    // --- AÑADE ESTE MÉTODO ---
+    /**
+     * Get the inventory record associated with the product.
+     */
+    public function inventory(): HasOne
+    {
+        return $this->hasOne(Inventory::class);
     }
 }

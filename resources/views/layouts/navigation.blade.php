@@ -9,6 +9,8 @@
                         <x-application-logo class="block h-9 w-auto fill-current text-gray-800" />
                     </a>
                 </div>
+                <svg width="200" height="60" xmlns="http://www.w3.org/2000/svg">
+                
 
                 
                 <!-- Navigation Links -->

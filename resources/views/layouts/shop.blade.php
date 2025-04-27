@@ -26,7 +26,18 @@
                 <div class="flex items-center justify-between">
                     <!-- Logo -->
                     <div>
-                        <a href="{{ route('home') }}" class="text-2xl font-bold text-indigo-600">TiendIA</a>
+                        <a href="{{ route('home') }}">
+                        <svg width="240" height="60" xmlns="http://www.w3.org/2000/svg">
+  <style>
+    .logo-text { font: bold 52px sans-serif; }
+    .base-color { fill: #222222; } /* Carbón / Gris muy oscuro */
+    .highlight-color { fill: #007BFF; } /* Azul Eléctrico */
+  </style>
+  <text x="10" y="50" class="logo-text">
+    <tspan class="base-color">Tiend</tspan><tspan class="highlight-color">IA</tspan>
+  </text>
+</svg>
+                        </a>
                     </div>
 
                     <!-- Search -->

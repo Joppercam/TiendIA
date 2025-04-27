@@ -15,8 +15,8 @@
         "spatie/laravel-permission": "^6.17",
         "transbank/transbank-sdk": "^2.0",
         "mercadopago/dx-php": "^2.5",
-        "khipu/khipu-api-client": "^3.0",
-        "barryvdh/laravel-dompdf": "^2.0"
+        "khipu/khipu-api-client": "^3.0@dev",
+        "barryvdh/laravel-dompdf": "^3.0"
     },
     "require-dev": {
         "barryvdh/laravel-debugbar": "^3.15",

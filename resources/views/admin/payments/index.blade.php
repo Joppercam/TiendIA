@@ -1,5 +1,4 @@
-<!-- resources/views/admin/payments/index.blade.php -->
-@extends('layouts.admin')
+@extends('admin.layouts.app')
 
 @section('title', 'Gestión de Pagos')
 

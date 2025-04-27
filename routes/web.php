@@ -14,6 +14,9 @@ use App\Http\Controllers\AddressController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\UserManagerController;
 use App\Http\Controllers\Admin\ReportController;
+use App\Http\Controllers\Admin\SeoController;
+use App\Http\Controllers\Admin\RedirectController;
+use App\Http\Controllers\Admin\SitemapController;
 
 
 // Checkout Routes
@@ -127,7 +130,7 @@ Route::get('admin/inventory-dashboard', [App\Http\Controllers\Admin\InventoryDas
 
 
     // Rutas de administración
-    Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin,super-admin'])->group(function () {
+    Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin|super-admin'])->group(function () {
         // Rutas de Gestión de Pedidos
         Route::get('orders', [App\Http\Controllers\Admin\OrderController::class, 'index'])->name('orders.index');
         Route::get('orders/{order}', [App\Http\Controllers\Admin\OrderController::class, 'show'])->name('orders.show');
@@ -234,7 +237,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'admin'])->group(fun
 // routes/web.php
 
 // Rutas de administración
-Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin,super-admin'])->group(function () {
+Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin|super-admin'])->group(function () {
     // Gestión de Cupones
     Route::resource('coupons', \App\Http\Controllers\Admin\CouponController::class);
     Route::get('coupons/generate-code', [\App\Http\Controllers\Admin\CouponController::class, 'generateCode'])->name('coupons.generate-code');
@@ -279,7 +282,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 });
 
 // Rutas para administración de pagos (backend)
-Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin,super-admin'])->group(function () {
+Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin|super-admin'])->group(function () {
     // Pagos
     Route::get('/payments', [\App\Http\Controllers\Admin\PaymentController::class, 'index'])->name('payments.index');
     Route::get('/payments/{payment}', [\App\Http\Controllers\Admin\PaymentController::class, 'show'])->name('payments.show');
@@ -293,5 +296,68 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin,super-ad
     Route::post('/payment-gateways/{gateway}/position', [\App\Http\Controllers\Admin\PaymentGatewayController::class, 'changePosition'])->name('payment-gateways.position');
     Route::post('/payment-gateways/{gateway}/toggle-active', [\App\Http\Controllers\Admin\PaymentGatewayController::class, 'toggleActive'])->name('payment-gateways.toggle-active');
 });
+
+
+/*
+|--------------------------------------------------------------------------
+| Rutas para Módulo SEO y Optimización
+|--------------------------------------------------------------------------
+|
+| Aquí se registran las rutas administrativas para gestionar SEO y optimización.
+|
+*/
+
+// Rutas para panel de administración SEO
+Route::prefix('admin/seo')->name('admin.seo.')->middleware(['auth', 'admin'])->group(function () {
+    // Dashboard SEO
+    Route::get('/', [SeoController::class, 'dashboard'])->name('dashboard');
+    
+    // Gestión de metadatos SEO
+    Route::get('metadata/{type}/{id}/edit', [SeoController::class, 'editMetadata'])->name('metadata.edit');
+    Route::put('metadata/{type}/{id}', [SeoController::class, 'updateMetadata'])->name('metadata.update');
+    
+    // Gestión de redirecciones
+    Route::resource('redirects', RedirectController::class);
+    
+    // Gestión de sitemaps
+    Route::resource('sitemaps', SitemapController::class);
+    Route::post('sitemaps/generate', [SitemapController::class, 'generate'])->name('sitemaps.generate');
+});
+
+// Ruta para sitemap.xml (accesible públicamente)
+Route::get('sitemap.xml', function () {
+    // Redirigimos al archivo de sitemap en storage/public
+    if (Storage::disk('public')->exists('sitemap.xml')) {
+        return redirect(Storage::disk('public')->url('sitemap.xml'));
+    }
+    
+    // Si no existe, generamos uno básico
+    $app = app();
+    $seoService = $app->make(\App\Services\SeoService::class);
+    $seoService->generateSitemaps();
+    
+    return redirect(Storage::disk('public')->url('sitemap.xml'));
+})->name('sitemap.xml');
+
+// Ruta para robots.txt (accesible públicamente)
+Route::get('robots.txt', function () {
+    $content = "User-agent: *\n";
+    
+    if (config('seo.robots.index')) {
+        $content .= "Allow: /\n";
+    } else {
+        $content .= "Disallow: /\n";
+    }
+    
+    // Añadimos sitemap
+    $content .= "Sitemap: " . url('sitemap.xml') . "\n";
+    
+    // Añadimos reglas personalizadas
+    if (config('seo.robots.custom')) {
+        $content .= config('seo.robots.custom') . "\n";
+    }
+    
+    return response($content)->header('Content-Type', 'text/plain');
+})->name('robots.txt');
 
 require __DIR__.'/auth.php';

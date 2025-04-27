@@ -8,7 +8,10 @@ use App\Models\Brand;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
-use Intervention\Image\Facades\Image;
+use Intervention\Image\ImageManager;
+use Intervention\Image\Drivers\Gd\Driver;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Http\UploadedFile;
 
 class ProductService
 {
@@ -108,43 +111,64 @@ class ProductService
         return $product->delete();
     }
 
+
+    // -------------------------------------------------------------------
+
     protected function processProductImages(Product $product, array $images)
     {
+        $imageManager = new ImageManager(new Driver());
         $order = 0;
-        
+
         foreach ($images as $index => $imageData) {
-            if (isset($imageData['file']) && $imageData['file']) {
+            if (isset($imageData['file']) && $imageData['file'] instanceof UploadedFile && $imageData['file']->isValid()) {
                 $file = $imageData['file'];
                 $fileName = Str::uuid() . '.' . $file->getClientOriginalExtension();
-                
-                // Guardar imagen original
-                $file->storeAs('public/products', $fileName);
-                
-                // Crear miniatura
-                $thumbnail = Image::make($file)
-                    ->resize(300, null, function ($constraint) {
-                        $constraint->aspectRatio();
-                    });
-                
-                Storage::put('public/products/thumbnails/' . $fileName, $thumbnail->stream());
-                
-                $isPrimary = isset($imageData['is_primary']) ? $imageData['is_primary'] : ($index === 0);
-                
-                // Si esta imagen es primaria, desmarcar otras primarias
-                if ($isPrimary) {
-                    ProductImage::where('product_id', $product->id)
-                        ->where('is_primary', true)
-                        ->update(['is_primary' => false]);
+
+                try {
+                    // 1. Leer la imagen subida DIRECTAMENTE para procesarla
+                    Log::info("Leyendo contenido del archivo subido: " . $file->getClientOriginalName());
+                    $image = $imageManager->read($file); // Lee directamente del archivo temporal subido
+
+                    // 2. Guardar la imagen original en el disco 'public'
+                    // Usamos el contenido codificado de la imagen leída para asegurar consistencia
+                    // Storage::disk('public')->put(...) guarda relativo a storage/app/public
+                    Storage::disk('public')->put('products/' . $fileName, (string) $image->encode());
+                    Log::info("Archivo original guardado en: storage/app/public/products/" . $fileName);
+
+                    // 3. Crear y guardar la miniatura en el disco 'public'
+                    $thumbnailImage = clone $image; // Clonamos la imagen ya leída
+                    $thumbnailImage->scale(width: 300);
+                    $thumbnailContent = $thumbnailImage->encode();
+                    Storage::disk('public')->put('products/thumbnails/' . $fileName, (string) $thumbnailContent);
+                    Log::info("Miniatura creada y guardada en: storage/app/public/products/thumbnails/" . $fileName);
+
+                    // 4. Guardar registro en la base de datos
+                    $isPrimary = isset($imageData['is_primary']) ? (bool)$imageData['is_primary'] : ($index === 0);
+                    if ($isPrimary) {
+                        ProductImage::where('product_id', $product->id)
+                            ->where('is_primary', true)
+                            ->update(['is_primary' => false]);
+                    }
+                    ProductImage::create([
+                        'product_id' => $product->id,
+                        'image' => $fileName, // Solo el nombre del archivo
+                        'is_primary' => $isPrimary,
+                        'order' => $order++,
+                        'alt_text' => $imageData['alt_text'] ?? $product->name
+                    ]);
+
+                } catch (\Intervention\Image\Exceptions\DecoderException $e) {
+                    Log::error("Error al DECODIFICAR imagen {$fileName}: " . $e->getMessage());
+                    // Saltar esta imagen si no se puede decodificar
+                    continue;
+                } catch (\Exception $e) {
+                    Log::error("Error procesando imagen {$fileName}: " . $e->getMessage());
+                    Log::error($e->getTraceAsString());
+                    // Saltar esta imagen si ocurre otro error
+                    continue;
                 }
-                
-                // Guardar registro de imagen
-                ProductImage::create([
-                    'product_id' => $product->id,
-                    'image' => $fileName,
-                    'is_primary' => $isPrimary,
-                    'order' => $order++,
-                    'alt_text' => $imageData['alt_text'] ?? $product->name
-                ]);
+            } elseif (isset($imageData['file']) && $imageData['file']) {
+                Log::warning("Archivo de imagen inválido o no cargado correctamente para producto ID {$product->id}, índice {$index}");
             }
         }
     }

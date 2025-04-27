@@ -14,9 +14,9 @@ return Application::configure(basePath: dirname(__DIR__))
         // Registrar los middleware de alias para Spatie Permission
         $middleware->alias([
             'admin' => \App\Http\Middleware\AdminMiddleware::class,
-            'role' => \Spatie\Permission\Middlewares\RoleMiddleware::class,
-            'permission' => \Spatie\Permission\Middlewares\PermissionMiddleware::class,
-            'role_or_permission' => \Spatie\Permission\Middlewares\RoleOrPermissionMiddleware::class,
+            'role' => \Spatie\Permission\Middleware\RoleMiddleware::class,
+            'permission' => \Spatie\Permission\Middleware\PermissionMiddleware::class,
+            'role_or_permission' => \Spatie\Permission\Middleware\RoleOrPermissionMiddleware::class,
             'api.throttle' => \Illuminate\Routing\Middleware\ThrottleRequests::class.':api',
         ]);
 
